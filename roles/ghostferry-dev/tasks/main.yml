@@ -1,0 +1,59 @@
+---
+- name: installing packages
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - golang-go
+    - devscripts
+    - equivs
+    - apt-transport-https
+    - ca-certificates
+    - software-properties-common
+    - python-pip
+    - mysql-client
+    - ruby
+    - ruby-dev
+    - ruby-bundler
+    - libmysqlclient-dev
+
+- name: add docker key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    id: 0EBFCD88
+    state: present
+
+- name: add docker apt repo
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+    update_cache: yes
+
+- name: install docker
+  apt:
+    name: docker-ce
+    state: latest
+
+- name: install docker compose
+  pip:
+    name: docker-compose
+    state: latest
+
+- name: docker group to dev
+  user:
+    name: dev
+    append: yes
+    groups:
+      - docker
+
+- name: dev ownership
+  file:
+    path: /home/dev/go
+    owner: dev
+    group: dev
+    recurse: yes
+
+- name: setup environment
+  copy:
+    dest: /etc/profile.d/ghostferry.sh
+    content: "export GOPATH=$HOME/go\nexport PATH=$GOPATH/bin:$PATH\ncd $HOME/go/src/github.com/Shopify/ghostferry"

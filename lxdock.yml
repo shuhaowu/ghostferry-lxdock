@@ -1,0 +1,23 @@
+name: ghostferry
+image: ubuntu/bionic
+
+lxc_config:
+  security.nesting: "true"
+
+users:
+  - name: dev
+    shell: /bin/bash
+    sudoer: yes
+
+shell:
+  user: dev
+
+shares:
+  - source: .
+    dest: /home/dev/go/src/github.com/Shopify/ghostferry
+  - source: ~/.gnupg
+    dest: /home/dev/.gnupg
+
+provisioning:
+  - type: ansible
+    playbook: provisioning/playbook.yml
